@@ -1,0 +1,31 @@
+import streamlit as st
+import pandas as pd
+import os
+
+csv_file = "phoenix_suns_roster_2024.csv"
+
+st.title("Phoenix Suns 2024 Roster")
+st.write("Welcome to the app! Attempting to load the CSV roster...")
+
+# Check if CSV exists
+if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
+    try:
+        # Attempt to load CSV
+        st.write("Loading CSV...")
+        roster_df = pd.read_csv(csv_file, encoding="utf-8", on_bad_lines="skip")
+        st.write("CSV loaded successfully.")
+        st.session_state["roster"] = roster_df.to_dict("records")
+    except Exception as e:
+        st.error("Failed to load CSV due to a ParserError.")
+        st.write("Detailed Error:", e)
+        st.session_state["roster"] = []
+else:
+    st.warning("The CSV file is missing or empty.")
+    st.session_state["roster"] = []
+
+# Render the table if data is loaded
+if st.session_state.get("roster"):
+    st.header("Phoenix Suns Players for 2024")
+    st.dataframe(pd.DataFrame(st.session_state["roster"]))
+else:
+    st.write("No data loaded. Ensure your CSV is valid.")
